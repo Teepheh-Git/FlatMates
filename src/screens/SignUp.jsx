@@ -29,7 +29,7 @@ const options = [
   },
 ];
 
-const SignUp = () => {
+const SignUp = ({ navigation }) => {
   const [currentIndex, setCurrentIndex] = useState(null);
   return (
     <ImageBackground
