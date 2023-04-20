@@ -1,30 +1,69 @@
 import {
+  Alert,
   Pressable,
   SafeAreaView,
   StyleSheet,
   Text,
-  TouchableWithoutFeedback,
   View,
-  Platform,
 } from "react-native";
 import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import CountryPicker, {
-  CountryCode,
-  Country,
-} from "react-native-country-picker-modal";
-import { Entypo } from "@expo/vector-icons";
 import { TextInput } from "react-native-gesture-handler";
 import CustomButton from "../components/CustomButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import axios from "axios";
 
 const Register = ({ navigation }) => {
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [registerLoading, setRegisterLoading] = useState(false);
   const [callingCode, setCallingCode] = useState("234");
   const [country, setCountry] = useState("NG");
   const [focused, setFocused] = useState(false);
   const [focusedPassword, setFocusedPassword] = useState(false);
+
+  const REGISTER_USER = async () => {
+    setRegisterLoading(true);
+    const BASE_URL = "https://janicenterapi.herokuapp.com/api";
+    try {
+      const res = await axios.post(`${BASE_URL}/auth/local/register`, {
+        username,
+        email: email,
+        password,
+        fullName: "Chima Promise B",
+        phoneNumber: "08108293720",
+        officeAddress:
+          "12 adekoya strt   udhssj sbfsfjsjsd sjfsfjsfjs  fjjffnd",
+        NIN: "85247563894",
+        userType: "janitor",
+      });
+
+      if (res.data.jwt) {
+        setUsername("");
+        setEmail("");
+        setPassword("");
+        Alert.alert(
+          "Registration Successful",
+          "Dear user, you have successfully registered, please proceed to login",
+          [
+            {
+              text: "Continue",
+              onPress: () => {
+                navigation.navigate("Login");
+              },
+            },
+          ]
+        );
+      }
+      // console.log(res.data, "Response from server");
+    } catch (error) {
+      console.log(JSON.stringify(error), "error from server");
+      Alert.alert(JSON.stringify(error.message));
+    } finally {
+      setRegisterLoading(false);
+    }
+  };
 
   return (
     <KeyboardAwareScrollView contentContainerStyle={{ flex: 1 }}>
@@ -50,6 +89,36 @@ const Register = ({ navigation }) => {
             marginBottom: 10,
           }}
         >
+          Username
+        </Text>
+
+        <View style={styles.inputBox}>
+          <TextInput
+            value={username}
+            onChangeText={(value) => setUsername(value)}
+            style={[
+              styles.inputField,
+              { borderColor: focused ? "blue" : "grey" },
+            ]}
+            placeholder="example@gmail.com"
+            placeholderTextColor="#848484"
+            keyboardType="email-address"
+            onFocus={() => {
+              setFocused(true);
+            }}
+            onBlur={() => {
+              setFocused(false);
+            }}
+          />
+        </View>
+
+        <Text
+          style={{
+            fontSize: 14,
+            marginTop: 20,
+            marginBottom: 10,
+          }}
+        >
           Email
         </Text>
 
@@ -63,7 +132,7 @@ const Register = ({ navigation }) => {
             ]}
             placeholder="example@gmail.com"
             placeholderTextColor="#848484"
-            keyboardType="email"
+            keyboardType="email-address"
             onFocus={() => {
               setFocused(true);
             }}
@@ -110,11 +179,9 @@ const Register = ({ navigation }) => {
           }}
         >
           <CustomButton
+            isLoading={registerLoading}
             buttonText={"Register"}
-            onPress={() => {
-              console.log(`+${callingCode}${email}`);
-              console.log(`${password}`);
-            }}
+            onPress={REGISTER_USER}
           />
         </View>
       </View>
