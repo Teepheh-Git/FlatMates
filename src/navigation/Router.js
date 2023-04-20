@@ -4,7 +4,7 @@ import MainStack from "./MainStack";
 import AuthStack from "./AuthStack";
 
 const Router = () => {
-  const loggedIn = true;
+  const loggedIn = false;
 
   return loggedIn ? <MainStack /> : <AuthStack />;
 };

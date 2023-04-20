@@ -70,6 +70,7 @@ const SignUp = ({ navigation }) => {
               ]}
               onPress={() => {
                 setCurrentIndex(i);
+                navigation.navigate("Register");
               }}
             >
               <Image
