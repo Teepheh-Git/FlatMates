@@ -25,18 +25,18 @@ const Register = ({ navigation }) => {
 
   const REGISTER_USER = async () => {
     setRegisterLoading(true);
-    const BASE_URL = "https://janicenterapi.herokuapp.com/api";
+    const BASE_URL = "http://localhost:1337/api";
     try {
       const res = await axios.post(`${BASE_URL}/auth/local/register`, {
         username,
         email: email,
         password,
-        fullName: "Chima Promise B",
-        phoneNumber: "08108293720",
-        officeAddress:
-          "12 adekoya strt   udhssj sbfsfjsjsd sjfsfjsfjs  fjjffnd",
-        NIN: "85247563894",
-        userType: "janitor",
+        // fullName: "Chima Promise B",
+        // phoneNumber: "08108293720",
+        // officeAddress:
+        //   "12 adekoya strt   udhssj sbfsfjsjsd sjfsfjsfjs  fjjffnd",
+        // NIN: "85247563894",
+        // userType: "janitor",
       });
 
       if (res.data.jwt) {

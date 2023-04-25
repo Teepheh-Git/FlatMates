@@ -7,7 +7,7 @@ import {
   View,
   Platform,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import CountryPicker, {
   CountryCode,
@@ -17,14 +17,46 @@ import { Entypo } from "@expo/vector-icons";
 import { TextInput } from "react-native-gesture-handler";
 import CustomButton from "../components/CustomButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import axios from "axios";
+import Router from "../navigation/Router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Login = ({ navigation }) => {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
   const [callingCode, setCallingCode] = useState("234");
   const [country, setCountry] = useState("NG");
   const [focused, setFocused] = useState(false);
   const [focusedPassword, setFocusedPassword] = useState(false);
+
+  const [loginLoading, setLoginLoading] = useState(false);
+
+  useEffect(() => {}, []);
+
+  const LOGIN_FN = async () => {
+    setLoginLoading(true);
+    const BASE_URL = "http://localhost:1337/api";
+
+    const data = {
+      identifier: email,
+      password,
+    };
+    // console.log(data);
+    try {
+      const res = await axios.post(`${BASE_URL}/auth/local`, data);
+      if (res.data.jwt) {
+        //--------------------------SAVE TOKEN IN DB-------------------------
+        AsyncStorage.setItem("token", res.data.jwt, () => {
+          navigation.navigate("MainStack");
+        });
+      }
+    } catch (error) {
+      console.log(JSON.stringify(error), "This is an error frm login");
+    } finally {
+      setLoginLoading(false);
+    }
+  };
 
   return (
     <KeyboardAwareScrollView contentContainerStyle={{ flex: 1 }}>
@@ -44,7 +76,6 @@ const Login = ({ navigation }) => {
         <Text style={styles.desc}>
           Please enter your phone number correctly.
         </Text>
-
         <Text
           style={{
             fontSize: 14,
@@ -52,10 +83,40 @@ const Login = ({ navigation }) => {
             marginBottom: 10,
           }}
         >
-          Phone
+          Email
         </Text>
 
         <View style={styles.inputBox}>
+          <TextInput
+            value={email}
+            onChangeText={(value) => setEmail(value)}
+            style={[
+              styles.inputField,
+              { borderColor: focused ? "blue" : "grey" },
+            ]}
+            placeholder="example@gmail.com"
+            placeholderTextColor="#848484"
+            keyboardType="email-address"
+            onFocus={() => {
+              setFocused(true);
+            }}
+            onBlur={() => {
+              setFocused(false);
+            }}
+          />
+        </View>
+
+        {/* <Text
+          style={{
+            fontSize: 14,
+            marginTop: 20,
+            marginBottom: 10,
+          }}
+        >
+          Phone
+        </Text> */}
+
+        {/* <View style={styles.inputBox}>
           <View style={styles.selectBox}>
             <CountryPicker
               withFlagButton={false}
@@ -87,7 +148,7 @@ const Login = ({ navigation }) => {
               setFocused(false);
             }}
           />
-        </View>
+        </View> */}
 
         <Text
           style={{
@@ -127,10 +188,8 @@ const Login = ({ navigation }) => {
         >
           <CustomButton
             buttonText={"Login"}
-            onPress={() => {
-              console.log(`+${callingCode}${phone}`);
-              console.log(`${password}`);
-            }}
+            isLoading={loginLoading}
+            onPress={LOGIN_FN}
           />
         </View>
       </View>
@@ -175,7 +234,7 @@ const styles = StyleSheet.create({
   },
   inputField: {
     borderWidth: 1,
-    width: "68%",
+    width: "100%",
     height: "100%",
     borderRadius: 10,
     paddingHorizontal: 10,
