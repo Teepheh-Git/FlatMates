@@ -20,6 +20,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import axios from "axios";
 import Router from "../navigation/Router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { BASE_URL } from "../constants/constants";
 
 const Login = ({ navigation }) => {
   const [phone, setPhone] = useState("");
@@ -32,11 +33,8 @@ const Login = ({ navigation }) => {
 
   const [loginLoading, setLoginLoading] = useState(false);
 
-  useEffect(() => {}, []);
-
   const LOGIN_FN = async () => {
     setLoginLoading(true);
-    const BASE_URL = "http://localhost:1337/api";
 
     const data = {
       identifier: email,
@@ -46,8 +44,12 @@ const Login = ({ navigation }) => {
     try {
       const res = await axios.post(`${BASE_URL}/auth/local`, data);
       if (res.data.jwt) {
+        const store = {
+          token: res.data.jwt,
+          id: res.data.user.id,
+        };
         //--------------------------SAVE TOKEN IN DB-------------------------
-        AsyncStorage.setItem("token", res.data.jwt, () => {
+        AsyncStorage.setItem("token", JSON.stringify(store), () => {
           navigation.navigate("MainStack");
         });
       }

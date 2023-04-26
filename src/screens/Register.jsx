@@ -12,6 +12,7 @@ import { TextInput } from "react-native-gesture-handler";
 import CustomButton from "../components/CustomButton";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import axios from "axios";
+import { BASE_URL } from "../constants/constants";
 
 const Register = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -25,7 +26,6 @@ const Register = ({ navigation }) => {
 
   const REGISTER_USER = async () => {
     setRegisterLoading(true);
-    const BASE_URL = "http://localhost:1337/api";
     try {
       const res = await axios.post(`${BASE_URL}/auth/local/register`, {
         username,

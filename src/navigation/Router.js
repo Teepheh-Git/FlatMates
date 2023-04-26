@@ -18,7 +18,8 @@ const Router = () => {
     try {
       setLoading(true);
       await AsyncStorage.getItem("token").then((token) => {
-        if (token) {
+        if (JSON.parse(token)) {
+          // console.log(JSON.parse(token));
           setTokenAvailable(true);
         }
       });

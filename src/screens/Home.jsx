@@ -60,6 +60,7 @@ const Home = () => {
       {/* -------THE VERTICAL FLATLIST SECTION------------------------ */}
       <FlatList
         data={[1, 2, 3, 4, 5, 6, 7, 8]}
+        keyExtractor={(item, index) => index.toString()}
         renderItem={({ item, index }) => (
           <View>
             <Text>Dummy</Text>
@@ -113,6 +114,7 @@ const Home = () => {
               >
                 {["Home", "Roomate", "Apartment"].map((item, index) => (
                   <Pressable
+                    key={index.toString()}
                     onPress={() => setActiveTabIndex(index)}
                     style={{
                       marginRight: 20,
