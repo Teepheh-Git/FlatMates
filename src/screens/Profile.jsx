@@ -14,17 +14,23 @@ import axios from "axios";
 import { BASE_URL } from "../constants/constants";
 import { useEffect } from "react";
 import QRCode from "react-native-qrcode-svg";
+import { useDispatch, useSelector } from "react-redux";
+import { GET_USER_INFO } from "../redux/UserSlice";
 
 const Profile = ({ navigation }) => {
-  const [userLoading, setUserLoading] = useState(false);
-  const [userInfo, setUserInfo] = useState({});
-  const [products, setProducts] = useState([]);
+  const dispatch = useDispatch();
 
+  const [userLoading, setUserLoading] = useState(false);
+  // const [userInfo, setUserInfo] = useState({});
+  const [products, setProducts] = useState([]);
   const [username, setUsername] = useState("");
 
+  const { userInfo } = useSelector((state) => state.userReducer);
+
   useEffect(() => {
-    GET_USER_FN();
-    GET_PRODUCTS_FN();
+    dispatch(GET_USER_INFO());
+
+    // console.log(userInfo);
   }, []);
 
   const LOGOUT_FN = async () => {
@@ -33,26 +39,26 @@ const Profile = ({ navigation }) => {
     });
   };
 
-  const GET_USER_FN = async () => {
-    setUserLoading(true);
-    try {
-      const { token, id } = await AsyncStorage.getItem("token").then((res) => {
-        return JSON.parse(res);
-      });
+  // const GET_USER_FN = async () => {
+  //   setUserLoading(true);
+  //   try {
+  //     const { token, id } = await AsyncStorage.getItem("token").then((res) => {
+  //       return JSON.parse(res);
+  //     });
 
-      const { data, status } = await axios.get(`${BASE_URL}/users/${id}`, {
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setUserInfo(data);
-    } catch (error) {
-      console.log(error, "Failed to get user");
-    } finally {
-      setUserLoading(false);
-    }
-  };
+  //     const { data, status } = await axios.get(`${BASE_URL}/users/${id}`, {
+  //       headers: {
+  //         Accept: "application/json",
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+  //     setUserInfo(data);
+  //   } catch (error) {
+  //     console.log(error, "Failed to get user");
+  //   } finally {
+  //     setUserLoading(false);
+  //   }
+  // };
   const UPDATE_USER = async () => {
     setUserLoading(true);
 
@@ -77,7 +83,8 @@ const Profile = ({ navigation }) => {
       );
 
       if (status === 200) {
-        GET_USER_FN();
+        // GET_USER_FN();
+        dispatch(GET_USER_INFO());
       }
     } catch (error) {
       console.log(error, "Failed to update user");
@@ -186,9 +193,9 @@ const Profile = ({ navigation }) => {
           </View>
         ))}
       </View>
-      <View style={{}}>
+      {/* <View style={{}}>
         <QRCode value="http://w3schools.com" />
-      </View>
+      </View> */}
 
       <CustomButton
         buttonText={"Update user"}

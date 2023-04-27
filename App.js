@@ -1,15 +1,19 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, Platform } from "react-native";
-import Login from "./src/screens/Welcome";
+import { StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import Router from "./src/navigation/Router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Provider } from "react-redux";
+import { reduxStore } from "./src/redux/store";
+
+//--------------------------REDUCERS--------------------------------------
+//--------------------------STORE--------------------------------------
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Router />
-    </NavigationContainer>
+    <Provider store={reduxStore}>
+      <NavigationContainer>
+        <Router />
+      </NavigationContainer>
+    </Provider>
   );
 }
 
