@@ -5,6 +5,7 @@ import {
   View,
   TextInput,
   Pressable,
+  Alert,
 } from "react-native";
 import React from "react";
 import CustomButton from "../components/CustomButton";
@@ -21,124 +22,104 @@ const Profile = ({ navigation }) => {
   const dispatch = useDispatch();
 
   const [userLoading, setUserLoading] = useState(false);
-  // const [userInfo, setUserInfo] = useState({});
+  const [userInfo, setUserInfo] = useState({});
   const [products, setProducts] = useState([]);
   const [username, setUsername] = useState("");
 
-  const { userInfo } = useSelector((state) => state.userReducer);
+  // const { userInfo } = useSelector((state) => state.userReducer);
 
   useEffect(() => {
-    dispatch(GET_USER_INFO());
-
-    // console.log(userInfo);
+    GET_USER_FN();
+    GET_PRODUCTS_FN();
   }, []);
+
+  const GET_USER_FN = async () => {
+    setUserLoading(true);
+    const { token } = await AsyncStorage.getItem("token").then((res) => {
+      return JSON.parse(res);
+    });
+    await axios
+      .get(`${BASE_URL}/users/me`, {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(({ data }) => {
+        setUserInfo(data);
+      })
+      .catch((err) => console.log(err))
+      .finally(() => {
+        setUserLoading(false);
+      });
+  };
+
+  async function UPDATE_USER() {
+    const { token, id } = await AsyncStorage.getItem("token").then((res) => {
+      return JSON.parse(res);
+    });
+
+    await axios
+      .put(
+        `${BASE_URL}/users/${id}`,
+        { username: username },
+        {
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then(({ status }) => {
+        if (status === 200) {
+          GET_USER_FN();
+        }
+      });
+  }
+
+  async function GET_PRODUCTS_FN() {
+    const { token } = await AsyncStorage.getItem("token").then((res) => {
+      return JSON.parse(res);
+    });
+    await axios
+      .get(`${BASE_URL}/products`, {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(({ data }) => {
+        // console.log(data.data);
+        setProducts(data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  const DELETE_PRODUCTS_FN = async (productID) => {
+    const { token } = await AsyncStorage.getItem("token").then((res) => {
+      return JSON.parse(res);
+    });
+
+    await axios
+      .delete(`${BASE_URL}/products/${productID}`, {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(({ status }) => {
+        if (status === 200) {
+          GET_PRODUCTS_FN();
+        }
+      });
+  };
 
   const LOGOUT_FN = async () => {
     await AsyncStorage.removeItem("token", () => {
       navigation.navigate("AuthStack");
     });
-  };
-
-  // const GET_USER_FN = async () => {
-  //   setUserLoading(true);
-  //   try {
-  //     const { token, id } = await AsyncStorage.getItem("token").then((res) => {
-  //       return JSON.parse(res);
-  //     });
-
-  //     const { data, status } = await axios.get(`${BASE_URL}/users/${id}`, {
-  //       headers: {
-  //         Accept: "application/json",
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
-  //     setUserInfo(data);
-  //   } catch (error) {
-  //     console.log(error, "Failed to get user");
-  //   } finally {
-  //     setUserLoading(false);
-  //   }
-  // };
-  const UPDATE_USER = async () => {
-    setUserLoading(true);
-
-    try {
-      const { token, id } = await AsyncStorage.getItem("token").then((res) => {
-        return JSON.parse(res);
-      });
-
-      const { status } = await axios.put(
-        `${BASE_URL}/users/${id}`,
-        {
-          username: username,
-          gender: "male",
-          PhoneNumber: 9089765367,
-        },
-        {
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (status === 200) {
-        // GET_USER_FN();
-        dispatch(GET_USER_INFO());
-      }
-    } catch (error) {
-      console.log(error, "Failed to update user");
-    } finally {
-      setUserLoading(false);
-    }
-  };
-
-  const GET_PRODUCTS_FN = async () => {
-    setUserLoading(true);
-    try {
-      const { token, id } = await AsyncStorage.getItem("token").then((kemi) => {
-        return JSON.parse(kemi);
-      });
-
-      const { data } = await axios.get(`${BASE_URL}/products`, {
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      // console.log(data);
-      setProducts(data.data);
-    } catch (error) {
-      console.log(error, "Failed to get products");
-    } finally {
-      setUserLoading(false);
-    }
-  };
-
-  const DELETE_PRODUCTS_FN = async (productID) => {
-    setUserLoading(true);
-    try {
-      const { token } = await AsyncStorage.getItem("token").then((res) => {
-        return JSON.parse(res);
-      });
-
-      const { status } = await axios.delete(
-        `${BASE_URL}/products/${productID}`,
-        {
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (status === 200) {
-        GET_PRODUCTS_FN();
-      }
-    } catch (error) {
-      console.log(error, "Failed to delete product");
-    } finally {
-      setUserLoading(false);
-    }
   };
 
   return (
@@ -169,17 +150,17 @@ const Profile = ({ navigation }) => {
       </View>
 
       <View style={{ marginTop: 20 }}>
-        {products.map((e, i) => (
+        {products.map((shoe, i) => (
           <View
             key={i.toString()}
             style={{ flexDirection: "row", justifyContent: "space-between" }}
           >
             <Text style={{ color: "blue", fontSize: 20 }}>
-              {e.attributes.Adidas}
+              {shoe.attributes.Adidas}
             </Text>
             <Pressable
               onPress={() => {
-                DELETE_PRODUCTS_FN(e.id);
+                DELETE_PRODUCTS_FN(shoe.id);
               }}
             >
               <Text

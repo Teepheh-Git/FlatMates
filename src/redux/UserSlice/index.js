@@ -25,7 +25,7 @@ export const GET_USER_INFO = createAsyncThunk("/api/user", async () => {
 
 export const UserSlice = createSlice({
   name: "user_slice",
-  initialState: initialState,
+  initialState,
   reducers: {
     increaseCount: (state, action) => {},
     decreaseCount: (state, action) => {},

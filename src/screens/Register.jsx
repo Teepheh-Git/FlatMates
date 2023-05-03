@@ -32,12 +32,6 @@ const Register = ({ navigation }) => {
         email: email,
         password,
         phoneNumber: 9083746439,
-        // fullName: "Chima Promise B",
-        // phoneNumber: "08108293720",
-        // officeAddress:
-        //   "12 adekoya strt   udhssj sbfsfjsjsd sjfsfjsfjs  fjjffnd",
-        // NIN: "85247563894",
-        // userType: "janitor",
       });
 
       if (res.data.jwt) {
